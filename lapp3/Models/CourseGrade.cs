@@ -22,4 +22,6 @@ public partial class CourseGrade
     public virtual Student? Studnt { get; set; }
 
     public virtual Personal? Teacher { get; set; }
+
+    
 }

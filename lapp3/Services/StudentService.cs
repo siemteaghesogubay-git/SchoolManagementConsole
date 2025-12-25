@@ -212,5 +212,152 @@ namespace lapp3.Services
 
 
         }
+
+
+
+        public static void ShowAllStudentsWithDetails()
+        {
+            using var context = new NykopingsgymnasiumContext();
+            AnsiConsole.Clear();
+
+            var students = context.Students
+                .Include(s => s.Class)
+                .Include(s => s.CourseGrades)
+                    .ThenInclude(cg => cg.Course)
+                .ToList();
+
+            if (!students.Any())
+            {
+                AnsiConsole.MarkupLine("[red]Inga studenter hittades.[/]");
+                Console.ReadKey();
+                return;
+            }
+
+            foreach (var student in students)
+            {
+                AnsiConsole.Write(
+                    new Rule($"[bold blue]{student.FristName} {student.LastName}[/]")
+                        .RuleStyle("grey")
+                        .Centered());
+
+                AnsiConsole.MarkupLine(
+                    $"[bold]Klass:[/] {student.Class?.ClassName ?? "Okänd"}");
+
+                if (!student.CourseGrades.Any())
+                {
+                    AnsiConsole.MarkupLine("[yellow]Inga betyg registrerade.[/]");
+                }
+                else
+                {
+                    var table = new Table()
+                        .Border(TableBorder.Rounded)
+                        .AddColumn("Kurs")
+                        .AddColumn("Betyg");
+
+                    foreach (var grade in student.CourseGrades)
+                    {
+                        table.AddRow(
+                            grade.Course?.CourseName ?? "Okänd kurs",
+                            grade.Grade ?? "-"
+                        );
+                    }
+
+                    AnsiConsole.Write(table);
+                }
+
+                AnsiConsole.WriteLine(); // luft mellan studenter
+            }
+
+            Console.ReadKey();
+        }
+
+
+
+        public static void SetGradeWithTransaction()
+        {
+            using var context = new NykopingsgymnasiumContext();
+            AnsiConsole.Clear();
+
+            var student = AnsiConsole.Prompt(
+                new SelectionPrompt<Student>()
+                    .Title("Välj student:")
+                    .UseConverter(s => $"{s.StudentId} - {s.FristName} {s.LastName}")
+                    .AddChoices(context.Students.ToList())
+            );
+            var teacher = AnsiConsole.Prompt(
+                new SelectionPrompt<Personal>()
+                    .Title("Välj lärare:")
+                    .UseConverter(t => $"{t.PersonalId} - {t.FristName} {t.LastName}")
+                    .AddChoices(
+                        context.Personals
+                            .Where(p => p.Position == "Teacher")
+                            .ToList()
+                    )
+            );
+
+            using var transaction = context.Database.BeginTransaction();
+
+            try
+            {
+                while (true)
+                {
+                    
+                    var course = AnsiConsole.Prompt(
+                        new SelectionPrompt<Course>()
+                            .Title("Välj kurs:")
+                            .UseConverter(c => c.CourseName)
+                            .AddChoices(context.Courses.ToList())
+                    );
+
+                   
+                    var gradeValue = AnsiConsole.Ask<string>(
+                        "Ange betyg (A–F):"
+                    ).ToUpper();
+
+                    // =========================
+                    // Skapa betyg
+                    // =========================
+                    var newGrade = new CourseGrade
+                    {
+                        StudntId = student.StudentId,
+                        CourseId = course.CourseId,
+                        TeacherId = teacher.PersonalId,
+                        Grade = gradeValue,
+                        SetDate = DateOnly.FromDateTime(DateTime.Now)
+                    };
+
+                    context.CourseGrades.Add(newGrade);
+
+                    
+                    var more = AnsiConsole.Confirm("Vill du sätta fler betyg?");
+                    if (!more)
+                        break;
+                }
+
+                context.SaveChanges();
+                transaction.Commit();
+
+                AnsiConsole.MarkupLine("[green]Alla betyg sparades korrekt![/]");
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                AnsiConsole.MarkupLine("[red]Ett fel uppstod. Inga betyg sparades.[/]");
+                AnsiConsole.MarkupLine($"[grey]{ex.Message}[/]");
+            }
+
+            Console.ReadKey();
+        }
+
+
+
+
+
+
+
+
+
+
+
     }
 }

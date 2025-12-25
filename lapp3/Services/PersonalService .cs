@@ -3,6 +3,7 @@ using lapp3.Models;
 using Spectre.Console;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 
 namespace lapp3.Services
@@ -181,8 +182,59 @@ namespace lapp3.Services
         }
 
 
+        public static void ShowPersonalByRole()
+        {
+            using var context = new NykopingsgymnasiumContext();
+            AnsiConsole.Clear();
+
+            var result = context.Personals
+                .GroupBy(p => p.Position)
+                .Select(g => new
+                {
+                    Position = g.Key,
+                    Count = g.Count()
+                })
+                .ToList();
+
+            if (!result.Any())
+            {
+                AnsiConsole.MarkupLine("[red]Ingen personal hittades.[/]");
+                Console.ReadKey();
+                return;
+            }
+
+            var table = new Table()
+                .Border(TableBorder.Rounded)
+                .AddColumn("Befattning")
+                .AddColumn("Antal personal");
+
+            foreach (var item in result)
+            {
+                table.AddRow(
+                    item.Position ?? "Okänd",
+                    item.Count.ToString()
+                );
+            }
+
+            AnsiConsole.Write(
+                new Rule("[bold blue]Personal per befattning[/]")
+                    .RuleStyle("grey")
+                    .Centered());
+
+            AnsiConsole.Write(table);
+            Console.ReadKey();
+        }
+
+
+
+
+
 
     }
+
+
+
+
 
 
 

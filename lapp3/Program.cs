@@ -13,8 +13,19 @@ namespace lapp3
     {
         static void Main(string[] args)
         {
-            ;    
+
             Menu.ShowStartMenu();
+
+           // CourseService.ShowInactiveCourses();
+
+
+
+
+
+
+
+
+
 
         }
 }

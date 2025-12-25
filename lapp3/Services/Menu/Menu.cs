@@ -1,6 +1,7 @@
 ﻿using System;
 using Spectre.Console;
 using lapp3.Services;
+using lapp3.Models;
 
 namespace lapp3.Services.Menu
 {
@@ -18,7 +19,7 @@ namespace lapp3.Services.Menu
                 var choice = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
                         .Title("[bold green]Välj huvudmeny:[/]")
-                        .AddChoices("Personal", "Studenter", "Avsluta")
+                        .AddChoices("Personal", "Studenter","Avsluta")
                 );
 
                 switch (choice)
@@ -54,7 +55,15 @@ namespace lapp3.Services.Menu
                             "Visa all personal",
                             "Lägg till personal",
                             "Ta bort personal",
+                            "Visa personal via roller ",
+                            "Visa aktiva kurser",
+
+                            "Visa inaktiva kurser",
+                            "sätt betyg",
+
                             "Tillbaka"
+
+
                         )
                 );
 
@@ -72,12 +81,32 @@ namespace lapp3.Services.Menu
                         PersonalService.DeletePersonal();
                         break;
 
+
+                        case "Visa personal via roller ":
+                            PersonalService.ShowPersonalByRole();
+                        break;
+
+                        case "Visa aktiva kurser":
+                         CourseService.ShowActiveCourses();
+                        break;
+
+                        case "Visa inaktiva kurser":
+                            CourseService.ShowInactiveCourses();
+                        break;
+
+
+                    case "sätt betyg":
+                        StudentService.SetGradeWithTransaction();
+                        break;
+
+
+
                     case "Tillbaka":
-                        return; // Går tillbaka till startmenyn
+                        return; // 
                 }
             }
         }
-
+        //
         // ============================
         // STUDENTMENY
         // ============================
@@ -93,7 +122,9 @@ namespace lapp3.Services.Menu
                         .AddChoices(
                             "Visa alla studenter",
                             "Visa studenter via klass",
-                            "Lägg till student",
+                          "Studentinformation med detaljer",
+                          "Lägg till student",
+
                             "Tillbaka"
                         )
                 );
@@ -106,6 +137,10 @@ namespace lapp3.Services.Menu
 
                     case "Visa studenter via klass":
                         StudentService.ShowStudentsByClass();
+                        break;
+
+                    case "Studentinformation med detaljer":
+                        StudentService.ShowAllStudentsWithDetails();
                         break;
 
                     case "Lägg till student":
