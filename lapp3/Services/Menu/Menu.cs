@@ -19,7 +19,7 @@ namespace lapp3.Services.Menu
                 var choice = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
                         .Title("[bold green]Välj huvudmeny:[/]")
-                        .AddChoices("Personal", "Studenter","Avsluta")
+                        .AddChoices("Personal", "Studenter", "Kurs", "Avsluta")
                 );
 
                 switch (choice)
@@ -31,6 +31,11 @@ namespace lapp3.Services.Menu
                     case "Studenter":
                         ShowStudentMenu();
                         break;
+
+                        case "Kurs":
+                            ShowCourseMenu();
+                            break;
+
 
                     case "Avsluta":
                         AnsiConsole.MarkupLine("[yellow]Programmet avslutas...[/]");
@@ -59,6 +64,7 @@ namespace lapp3.Services.Menu
                             "Visa aktiva kurser",
 
                             "Visa inaktiva kurser",
+
                             "sätt betyg",
 
                             "Tillbaka"
@@ -152,5 +158,72 @@ namespace lapp3.Services.Menu
                 }
             }
         }
+
+
+
+
+        //
+        // ============================
+        // KursMENY
+        // ============================
+        public static void ShowCourseMenu()
+        {
+            while (true)
+            {
+                AnsiConsole.Clear();
+                var choice = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("[bold blue]Kurs - Välj funktion:[/]")
+                        .AddChoices(
+
+
+                             "visaa aktiva Kurser",
+                             "visa inaktiva kurser",
+                            "Lägg till kurs",
+                            "Ta bort kurs",
+                            "Aktivera Kurs",
+                            "Avaktivera kurs",
+                            "Tillbaka"
+                        )
+                );
+                switch (choice)
+                {
+                    case "visaa aktiva Kurser":
+                        CourseService.ShowActiveCourses();
+                        break;
+
+                        case "visa inaktiva kurser":
+                            CourseService.ShowInactiveCourses();
+                            break;
+
+                        case "Aktivera Kurs":
+                            CourseService.ActivateCourse();
+                            break;
+                         return;
+
+
+                    case "Avaktivera kurs":
+                            CourseService.DeactivateCourse();
+
+                            break;
+                        return;
+
+                    case "Lägg till kurs":
+                        CourseService.AddCourse();
+                        break;
+                    case "Ta bort kurs":
+                        CourseService.DeleteCourse();
+                        break;
+                    case "Tillbaka":
+                        return; // Går tillbaka till startmenyn
+                }
+            }
+        }
+
+
+
+
+
     }
+
 }

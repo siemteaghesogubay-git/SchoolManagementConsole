@@ -16,7 +16,7 @@ namespace lapp3
 
             Menu.ShowStartMenu();
 
-           // CourseService.ShowInactiveCourses();
+           
 
 
 
